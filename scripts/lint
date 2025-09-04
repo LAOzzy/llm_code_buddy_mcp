@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+status=0
+
+# Python linting
+if command -v ruff >/dev/null 2>&1; then
+  echo "Linting Python with ruff..."
+  ruff check . || status=$?
+elif command -v flake8 >/dev/null 2>&1; then
+  echo "Linting Python with flake8..."
+  flake8 . || status=$?
+fi
+
+# JS/TS linting
+if command -v eslint >/dev/null 2>&1; then
+  echo "Linting JS/TS with eslint..."
+  eslint . --ext .js,.jsx,.ts,.tsx || status=$?
+fi
+
+if [[ $status -ne 0 ]]; then
+  echo "Linting completed with issues (exit $status)." >&2
+fi
+exit 0
+

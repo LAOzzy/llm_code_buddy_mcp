@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Prefer running the MCP stdio server if the SDK is available.
+if python - <<'PY'
+try:
+    import mcp  # noqa: F401
+    import sys
+    sys.exit(0)
+except Exception:
+    import sys
+    sys.exit(1)
+PY
+then
+  echo "Starting MCP stdio server..."
+  exec python -m src.mcp_server
+fi
+
+echo "MCP SDK not found. Running CLI help instead."
+echo "Tip: pip install -r requirements.txt and install an MCP SDK (see requirements.txt)."
+python -m src.cli --help || true
+exit 0

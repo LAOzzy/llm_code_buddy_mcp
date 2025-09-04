@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+status=0
+
+# Python formatting
+if command -v black >/dev/null 2>&1; then
+  echo "Formatting Python with black..."
+  black . || status=$?
+elif command -v ruff >/dev/null 2>&1; then
+  echo "Formatting Python with ruff format..."
+  ruff format . || status=$?
+fi
+
+# JS/TS formatting
+if command -v prettier >/dev/null 2>&1; then
+  echo "Formatting JS/TS with prettier..."
+  prettier --write "**/*.{js,jsx,ts,tsx,json,md,css,scss}" || status=$?
+fi
+
+if [[ $status -ne 0 ]]; then
+  echo "Formatting completed with issues (exit $status)." >&2
+fi
+exit 0
+

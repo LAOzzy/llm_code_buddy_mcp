@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ran=0
+
+# Python: pytest
+if [[ -f pyproject.toml || -f pytest.ini || -d tests ]]; then
+  if command -v pytest >/dev/null 2>&1; then
+    ran=1
+    echo "Running pytest..."
+    exec pytest -q
+  fi
+fi
+
+# JS/TS: npm/yarn/pnpm test
+if [[ -f package.json ]]; then
+  if command -v npm >/dev/null 2>&1; then
+    ran=1
+    echo "Running npm test..."
+    exec npm test --silent
+  elif command -v pnpm >/dev/null 2>&1; then
+    ran=1
+    echo "Running pnpm test..."
+    exec pnpm test
+  elif command -v yarn >/dev/null 2>&1; then
+    ran=1
+    echo "Running yarn test..."
+    exec yarn test
+  fi
+fi
+
+if [[ "$ran" -eq 0 ]]; then
+  echo "No test runner found. Add pytest or JS test scripts."
+fi
+exit 0
+

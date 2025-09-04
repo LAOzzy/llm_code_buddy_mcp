@@ -1,0 +1,23 @@
+[project]
+name = "llm-code-buddy-mcp"
+version = "0.1.0"
+description = "MCP helper to consult larger LLMs and generate docs"
+readme = "AGENTS.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+lint.select = ["E","F","W","I","UP","B","C90"]
+lint.ignore = []
+extend-exclude = ["dist", "node_modules"]
+

@@ -1,0 +1,13 @@
+# Core runtime deps (install as needed)
+requests>=2.32.0
+python-dotenv>=1.0.1
+mcp>=0.1.0
+
+# Alternative SDKs (if you switch):
+# modelcontextprotocol>=0.1.0
+# fastmcp>=0.4.0
+
+# Dev tools
+black>=24.8.0
+ruff>=0.5.7
+pytest>=8.3.2
