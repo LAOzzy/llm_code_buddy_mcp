@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Run a smoke test inside Docker by invoking the CLI instead of the MCP server.
+# Usage: scripts/docker-smoke [--build] [--image IMAGE_NAME] [--temperature VALUE] [PROMPT]
+
+IMAGE="llm-code-buddy-mcp"
+BUILD=0
+TEMP_OPT=()
+PROMPT="Hello"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --build|-b)
+      BUILD=1
+      shift
+      ;;
+    --image|-i)
+      IMAGE=${2:-$IMAGE}
+      shift 2
+      ;;
+    --temperature)
+      TEMP_OPT=("--temperature" "${2:-1.0}")
+      shift 2
+      ;;
+    *)
+      PROMPT="$1"
+      shift
+      ;;
+  esac
+done
+
+if [[ $BUILD -eq 1 ]]; then
+  echo "Building Docker image: $IMAGE"
+  docker build -t "$IMAGE" .
+fi
+
+ENV_ARGS=()
+if [[ -f .env ]]; then
+  ENV_ARGS+=(--env-file .env)
+else
+  [[ -n "${LLM_MODEL:-}" ]] && ENV_ARGS+=( -e "LLM_MODEL=$LLM_MODEL" )
+  [[ -n "${LLM_BASE_URL:-}" ]] && ENV_ARGS+=( -e "LLM_BASE_URL=$LLM_BASE_URL" )
+  [[ -n "${LLM_API_KEY:-}" ]] && ENV_ARGS+=( -e "LLM_API_KEY=$LLM_API_KEY" )
+  [[ -n "${GPT5_API_KEY:-}" ]] && ENV_ARGS+=( -e "GPT5_API_KEY=$GPT5_API_KEY" )
+fi
+
+echo "Running CLI smoke test in Docker..."
+exec docker run --rm "${ENV_ARGS[@]}" "$IMAGE" \
+  python -m src.cli freeform "$PROMPT" "${TEMP_OPT[@]}"
+

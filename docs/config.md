@@ -8,6 +8,10 @@ Required
 Optional
 - `LLM_MODEL`: Model name. Default: `gpt-5`.
 - `LLM_BASE_URL`: OpenAI-compatible API base URL. Default: `https://api.openai.com/v1`.
+- `LLM_TIMEOUT`: Request timeout in seconds. Default: `60`.
+- `LLM_RETRY_TOTAL`: Total retry attempts for transient errors/timeouts. Default: `3`.
+- `LLM_RETRY_BACKOFF`: Initial exponential backoff in seconds. Default: `0.5`.
+- `LLM_RETRY_STATUS`: Comma-separated HTTP status codes to retry. Default: `429,500,502,503,504`.
 
 Examples
 - OpenAI-compatible (default):

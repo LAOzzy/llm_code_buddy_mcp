@@ -1,0 +1,48 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Dev: make dev",
+      "type": "shell",
+      "command": "make dev",
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "MCP: Run (local Python)",
+      "type": "shell",
+      "command": "python",
+      "args": ["-m", "src.mcp_server"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "MCP: Run (Docker detached)",
+      "type": "shell",
+      "command": "scripts/docker-run-detached --build",
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "MCP: Smoke Test (Docker)",
+      "type": "shell",
+      "command": "scripts/docker-smoke --build \"Hello from Docker\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: Pytest",
+      "type": "shell",
+      "command": "make test",
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Lint: Ruff",
+      "type": "shell",
+      "command": "make lint",
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    }
+  ]
+}

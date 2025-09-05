@@ -3,6 +3,9 @@ set -euo pipefail
 
 ran=0
 
+# Ensure the project root is on PYTHONPATH for imports like `src.llm`
+export PYTHONPATH="${PYTHONPATH:-}:$(pwd)"
+
 # Python: pytest
 if [[ -f pyproject.toml || -f pytest.ini || -d tests ]]; then
   if command -v pytest >/dev/null 2>&1; then
@@ -10,6 +13,13 @@ if [[ -f pyproject.toml || -f pytest.ini || -d tests ]]; then
     echo "Running pytest..."
     exec pytest -q
   fi
+fi
+
+# Python: unittest fallback (no external deps required)
+if [[ "$ran" -eq 0 && -d tests ]]; then
+  ran=1
+  echo "Running unittest discovery..."
+  exec python -m unittest discover -q
 fi
 
 # JS/TS: npm/yarn/pnpm test
@@ -33,4 +43,3 @@ if [[ "$ran" -eq 0 ]]; then
   echo "No test runner found. Add pytest or JS test scripts."
 fi
 exit 0
-

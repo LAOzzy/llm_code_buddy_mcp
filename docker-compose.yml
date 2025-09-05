@@ -1,0 +1,10 @@
+services:
+  mcp:
+    build: .
+    image: llm-code-buddy-mcp
+    stdin_open: true   # keep STDIN open for MCP stdio
+    tty: false
+    env_file:
+      - .env
+    command: ["python", "-m", "src.mcp_server"]
+

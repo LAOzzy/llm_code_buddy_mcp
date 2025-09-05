@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import sys
 
 from .llm import chat
 
@@ -22,7 +21,10 @@ def cmd_ask_expert(args: argparse.Namespace) -> int:
 def cmd_generate_docs(args: argparse.Namespace) -> int:
     system = "You create clear, concise development docs with actionable steps and examples."
     prompt = (
-        f"Topic: {args.topic}\nGoals: {args.goals or '-'}\nNotes: {args.notes or '-'}\n\nWrite a focused document (<=400 words)."
+        f"Topic: {args.topic}\n"
+        f"Goals: {args.goals or '-'}\n"
+        f"Notes: {args.notes or '-'}\n\n"
+        "Write a focused document (<=400 words)."
     )
     content = chat([
         {"role": "system", "content": system},
@@ -55,7 +57,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p3 = sub.add_parser("freeform", help="Freeform prompt")
     p3.add_argument("prompt", help="Prompt text")
-    p3.add_argument("--temperature", type=float, default=0.3)
+    p3.add_argument("--temperature", type=float, default=None)
     p3.set_defaults(func=cmd_freeform)
 
     return p
@@ -69,4 +71,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
