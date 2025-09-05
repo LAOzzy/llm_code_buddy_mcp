@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Run the MCP stdio server inside Docker with envs from .env (if present).
+# Usage: scripts/docker-run [--build] [--image IMAGE_NAME]
+
+IMAGE="llm-code-buddy-mcp"
+BUILD=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --build|-b)
+      BUILD=1
+      shift
+      ;;
+    --image|-i)
+      IMAGE=${2:-$IMAGE}
+      shift 2
+      ;;
+    *)
+      echo "Unknown arg: $1" >&2
+      exit 2
+      ;;
+  esac
+done
+
+if [[ $BUILD -eq 1 ]]; then
+  echo "Building Docker image: $IMAGE"
+  docker build -t "$IMAGE" .
+fi
+
+ENV_ARGS=()
+if [[ -f .env ]]; then
+  ENV_ARGS+=(--env-file .env)
+else
+  # Fallback: pass env from current shell if set
+  [[ -n "${LLM_MODEL:-}" ]] && ENV_ARGS+=( -e "LLM_MODEL=$LLM_MODEL" )
+  [[ -n "${LLM_BASE_URL:-}" ]] && ENV_ARGS+=( -e "LLM_BASE_URL=$LLM_BASE_URL" )
+  [[ -n "${LLM_API_KEY:-}" ]] && ENV_ARGS+=( -e "LLM_API_KEY=$LLM_API_KEY" )
+  [[ -n "${GPT5_API_KEY:-}" ]] && ENV_ARGS+=( -e "GPT5_API_KEY=$GPT5_API_KEY" )
+fi
+
+echo "Starting MCP server in Docker (stdin open)..."
+exec docker run --rm -i "${ENV_ARGS[@]}" "$IMAGE"
+

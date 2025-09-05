@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Start the MCP stdio server in Docker in detached mode, follow logs,
+# and clean up the container on Ctrl+C.
+#
+# Usage:
+#   scripts/docker-run-detached [--build] [--image IMAGE] [--name NAME] [--no-follow]
+#
+# Examples:
+#   scripts/docker-run-detached --build
+#   scripts/docker-run-detached --image my-mcp --name mcp-demo
+
+IMAGE="llm-code-buddy-mcp"
+NAME="mcp-detached"
+BUILD=0
+FOLLOW=1
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --build|-b)
+      BUILD=1; shift ;;
+    --image|-i)
+      IMAGE=${2:-$IMAGE}; shift 2 ;;
+    --name|-n)
+      NAME=${2:-$NAME}; shift 2 ;;
+    --no-follow)
+      FOLLOW=0; shift ;;
+    *)
+      echo "Unknown arg: $1" >&2; exit 2 ;;
+  esac
+done
+
+if [[ $BUILD -eq 1 ]]; then
+  echo "Building Docker image: $IMAGE"
+  docker build -t "$IMAGE" .
+fi
+
+# Remove any prior container with the same name
+(docker rm -f "$NAME" >/dev/null 2>&1) || true
+
+ENV_ARGS=()
+if [[ -f .env ]]; then
+  ENV_ARGS+=(--env-file .env)
+else
+  [[ -n "${LLM_MODEL:-}" ]] && ENV_ARGS+=( -e "LLM_MODEL=$LLM_MODEL" )
+  [[ -n "${LLM_BASE_URL:-}" ]] && ENV_ARGS+=( -e "LLM_BASE_URL=$LLM_BASE_URL" )
+  [[ -n "${LLM_API_KEY:-}" ]] && ENV_ARGS+=( -e "LLM_API_KEY=$LLM_API_KEY" )
+  [[ -n "${GPT5_API_KEY:-}" ]] && ENV_ARGS+=( -e "GPT5_API_KEY=$GPT5_API_KEY" )
+fi
+
+echo "Starting container '$NAME' from image '$IMAGE' (detached, stdin open)..."
+cid=$(docker run -d -i --name "$NAME" "${ENV_ARGS[@]}" "$IMAGE")
+echo "Container: $cid"
+echo "Stop with: docker rm -f $NAME"
+
+cleanup() {
+  echo "\nCleaning up container '$NAME'..."
+  docker rm -f "$NAME" >/dev/null 2>&1 || true
+  exit 0
+}
+
+if [[ $FOLLOW -eq 1 ]]; then
+  trap cleanup INT TERM
+  echo "\nFollowing logs (Ctrl+C to stop and remove)...\n"
+  docker logs -f "$NAME" || true
+  cleanup
+else
+  # No follow; print quick status and exit
+  sleep 1
+  docker inspect -f '{{.State.Status}}' "$NAME" || true
+fi
+
