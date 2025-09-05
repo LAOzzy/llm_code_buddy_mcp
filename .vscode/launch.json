@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: MCP Server (debug)",
+      "type": "python",
+      "request": "launch",
+      "module": "src.mcp_server",
+      "justMyCode": true,
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "name": "Python: CLI Freeform",
+      "type": "python",
+      "request": "launch",
+      "module": "src.cli",
+      "justMyCode": true,
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env",
+      "args": ["freeform", "Hello", "--temperature", "1.0"]
+    }
+  ]
+}
+
