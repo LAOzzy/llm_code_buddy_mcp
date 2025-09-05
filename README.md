@@ -111,6 +111,11 @@ Note: Adjust Python version, paths, and env handling for your environment.
 ## Configuration
 - Required: `LLM_API_KEY` or `GPT5_API_KEY`
 - Optional: `LLM_MODEL` (default `gpt-5`), `LLM_BASE_URL` (default `https://api.openai.com/v1`)
+  - Timeouts/Retry:
+    - `LLM_TIMEOUT` (default `60`)
+    - `LLM_RETRY_TOTAL` (default `3`)
+    - `LLM_RETRY_BACKOFF` (default `0.5`)
+    - `LLM_RETRY_STATUS` (default `429,500,502,503,504`)
 - The CLI and server load `.env` via `python-dotenv` if present.
 - Temperature is omitted by default; pass it explicitly if the provider requires it.
 
