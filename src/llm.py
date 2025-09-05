@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from typing import Dict, List, Literal, TypedDict
+from typing import Literal, TypedDict
 
 import requests
 from dotenv import load_dotenv
@@ -19,7 +19,7 @@ BASE_URL = os.getenv("LLM_BASE_URL", "https://api.openai.com/v1").rstrip("/")
 API_KEY = os.getenv("LLM_API_KEY") or os.getenv("GPT5_API_KEY") or ""
 
 
-def chat(messages: List[ChatMessage], temperature: float | None = 0.3) -> str:
+def chat(messages: list[ChatMessage], temperature: float | None = None) -> str:
     """Send a chat request to an OpenAI-compatible API and return text content.
 
     Environment variables:
@@ -28,12 +28,13 @@ def chat(messages: List[ChatMessage], temperature: float | None = 0.3) -> str:
     - LLM_API_KEY or GPT5_API_KEY
     """
 
-    body: Dict = {
+    body: dict = {
         "model": DEFAULT_MODEL,
         "messages": messages,
-        "temperature": temperature if temperature is not None else 0.3,
         "stream": False,
     }
+    if temperature is not None:
+        body["temperature"] = temperature
 
     headers = {"content-type": "application/json"}
     if API_KEY:
@@ -54,4 +55,3 @@ def chat(messages: List[ChatMessage], temperature: float | None = 0.3) -> str:
     if not content:
         raise RuntimeError("LLM returned empty response")
     return str(content)
-
